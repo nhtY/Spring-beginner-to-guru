@@ -25,6 +25,14 @@ public class BeerController {
 //        this.beerService = beerService;
 //    }
 
+    @PutMapping("{beerId}")
+    public ResponseEntity updateById(@PathVariable("beerId") UUID beerId, @RequestBody Beer beer) {
+
+        beerService.updateById(beerId, beer);
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     @PostMapping
     public ResponseEntity handlePost(@RequestBody Beer beer) {
 
