@@ -107,8 +107,6 @@ public class BeerServiceImpl implements BeerService {
         existing.setPrice(beer.getPrice());
         existing.setUpdateDate(LocalDateTime.now());
 
-        beerMap.put(existing.getId(), existing);
-
         log.debug("Beer after update: {}", existing);
     }
 
