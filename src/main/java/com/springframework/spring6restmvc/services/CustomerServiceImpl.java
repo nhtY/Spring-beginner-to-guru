@@ -68,7 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .id(UUID.randomUUID())
                 .createdDate(LocalDateTime.now())
                 .lastModifiedDate(LocalDateTime.now())
-                .version(customer.getVersion())
+                .version(1)
                 .name(customer.getName())
                 .build();
 
