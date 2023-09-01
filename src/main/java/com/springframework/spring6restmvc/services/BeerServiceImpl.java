@@ -110,4 +110,11 @@ public class BeerServiceImpl implements BeerService {
         log.debug("Beer after update: {}", existing);
     }
 
+    @Override
+    public void deleteById(UUID beerId) {
+        log.debug("Deleting Beer with id: {}", beerId);
+
+        beerMap.remove(beerId);
+    }
+
 }
