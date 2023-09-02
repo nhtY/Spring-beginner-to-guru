@@ -33,6 +33,23 @@ class BeerControllerTest {
     BeerServiceImpl beerServiceImpl = new BeerServiceImpl();
 
     @Test
+    void testListBeers() throws Exception {
+        // When mock beenService's listBeer method is called, return the result of beerServiceImpl.listBeers()
+        given(beerService.listBeers()).willReturn(beerServiceImpl.listBeers());
+
+        // HTTP GET .../api/v1/beer
+        // add 'Accept' header with value application json
+        // Then, check if response code is 200 OK
+        // Then, check if content type is json
+        // Then, check if the returned list's length is 3
+        mockMvc.perform(get("/api/v1/beer")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()", is(3)));
+    }
+
+    @Test
     void getBeerById() throws Exception {
 
         // get the first beer in the list to use as a test object
@@ -52,7 +69,7 @@ class BeerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // for jsonPath usage: https://github.com/json-path/JsonPath
-                .andExpect(jsonPath("$.id", is(testBeer.getId())))
+                .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
                 .andExpect(jsonPath("$.beerName", is(testBeer.getBeerName())));
     }
 }
