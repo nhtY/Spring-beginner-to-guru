@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BeerController {
     private final BeerService beerService;
 
-    // BECAUSE we use @AllArgsConstructor, we do not need to write the following constructor
+    // BECAUSE we use @RequiredArgsConstructor, we do not need to write the following constructor
 
 //    public BeerController(BeerService beerService) {
 //        this.beerService = beerService;
