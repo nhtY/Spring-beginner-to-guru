@@ -23,7 +23,7 @@ class BeerControllerTest {
 //    @Autowired
 //    BeerController beerController;
     @Autowired
-    MockMvc mockMvc;
+    MockMvc mockMvc; // will be used to create mock/fake requests and responses instead of via a running server
 
     // Our controller needs BeerService object. So, create a fake instance of that class to be able to test the controller properly:
     @MockBean
