@@ -7,12 +7,15 @@ import com.springframework.spring6restmvc.services.BeerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,12 +48,47 @@ class BeerControllerTest {
     @MockBean
     BeerService beerService;
 
+    @Captor
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<Beer> beerArgumentCaptor;
+
     // to reach the beer objects in the hashmap of BeerServiceImpl
     BeerServiceImpl beerServiceImpl;
 
     @BeforeEach // before each test method, run the following
     void setUp() {
         beerServiceImpl = new BeerServiceImpl(); // each test method will have separate beerServiceImpl
+    }
+
+
+    @Test
+    void patchBeerById() throws Exception {
+        Beer testBeer = beerServiceImpl.listBeers().get(0);
+
+        // following Map represents the patch - properties wanted to be updated
+        Map<String, Object> patchMap = new HashMap<>();
+        patchMap.put("beerName", "New Beer Name");
+
+        // HTTP PATCH .../api/v1/beer/{beerId}
+        // add 'Accept' header to tell json results accepted
+        // add 'Content-Type' header to tell client sending a json
+        // write patch into the body of the request
+        // Then, check if response has status 204 NO CONTENT
+        mockMvc.perform(patch("/api/v1/beer/" + testBeer.getId())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(patchMap)))
+                .andExpect(status().isNoContent());
+
+        // Verify that our mock beerService's patchBeerById() method is called.
+        // And capture the arguments passed to the method.
+        verify(beerService).patchBeerById(uuidArgumentCaptor.capture(), beerArgumentCaptor.capture());
+
+        // Make sure that passed UUID and Object are what we actually passed.
+        assertThat(testBeer.getId().equals(uuidArgumentCaptor.getValue()));
+        assertThat(patchMap.get("beerName").equals(beerArgumentCaptor.getValue().getBeerName()));
     }
 
 
