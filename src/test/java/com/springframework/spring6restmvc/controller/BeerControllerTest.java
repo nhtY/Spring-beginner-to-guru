@@ -12,9 +12,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -42,6 +46,28 @@ class BeerControllerTest {
     @BeforeEach // before each test method, run the following
     void setUp() {
         beerServiceImpl = new BeerServiceImpl(); // each test method will have separate beerServiceImpl
+    }
+
+    @Test
+    void updateById() throws Exception {
+        Beer testBeer = beerServiceImpl.listBeers().get(0);
+
+        // We did not use given() because the handler method creates nothing. So, there is nothing to mock.
+
+        // HTTP PUT .../api/v1/beer/{beerId}
+        // add 'Accept' header with value application/json
+        // add 'Content-Type' header with application/json to indicate the format of the content which is being sent
+        // write the beer object in json format into the body of the request
+        // Then, check if the response has status code 204 NO CONTENT
+        mockMvc.perform(put("/api/v1/beer/" + testBeer.getId().toString())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testBeer)))
+                .andExpect(status().isNoContent());
+
+        // we need to verify that handler method called our mock beerService's updateById() method.
+        // Verify that updateById() is called with any UUID and Beer parameters:
+        verify(beerService).updateById(any(UUID.class), any(Beer.class));
     }
 
     @Test
