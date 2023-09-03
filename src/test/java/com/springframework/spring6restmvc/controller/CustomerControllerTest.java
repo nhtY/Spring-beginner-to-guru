@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -74,7 +73,7 @@ class CustomerControllerTest {
         // add 'Content-Type' header to tell client is sending content in json format
         // write patch object in json format into the body
         // Then, check if response has status code 204 NO CONTENT
-        mockMvc.perform(patch("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(patchMap)))
@@ -96,7 +95,7 @@ class CustomerControllerTest {
         // HTTP DELETE .../api/v1/customer/{customerId}
         // add 'Accept' header
         // Then, check if response has status code 204 NO CONTENT
-        mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -121,7 +120,7 @@ class CustomerControllerTest {
         // add 'Content-Type' header to indicate that client sending json as content in the body
         // write the customer object in JSON format into the content body
         // Then, check if response has status code 204 NO CONTENT
-        mockMvc.perform(put("/api/v1/customer/" + testCustomer.getId().toString())
+        mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId().toString())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testCustomer)))
@@ -153,7 +152,7 @@ class CustomerControllerTest {
         // write customer data on body
         // Then, check if response has status code 201 Content Created
         // Then, check if response contains 'Location' header.
-        mockMvc.perform(post("/api/v1/customer")
+        mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCustomer)))
@@ -166,7 +165,7 @@ class CustomerControllerTest {
     void listCustomers() throws Exception {
         given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
 
-        mockMvc.perform(get("/api/v1/customer")
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -180,7 +179,7 @@ class CustomerControllerTest {
 
         given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
 
-        mockMvc.perform(get("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
