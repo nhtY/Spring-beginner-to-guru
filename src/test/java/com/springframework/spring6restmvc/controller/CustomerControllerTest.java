@@ -7,6 +7,7 @@ import com.springframework.spring6restmvc.services.CustomerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,6 +40,9 @@ class CustomerControllerTest {
     @MockBean
     CustomerService customerService; // CustomerController needs it. So, fake it.
 
+    @Captor // Define a class level argument captor for UUID to reuse it whenever needed.
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
+
     CustomerServiceImpl customerServiceImpl; // to generate test objects for verification
 
     @BeforeEach // before running each test methods, run the following method
@@ -60,9 +64,6 @@ class CustomerControllerTest {
         mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-
-        // Using argument captor, capture the arguments passed to the mock customerService object's deleteById() method.
-        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
         // Verify that mock customerService's deleteById() method is called:
         verify(customerService).deleteById(uuidArgumentCaptor.capture());
@@ -94,7 +95,9 @@ class CustomerControllerTest {
         // We expect handler method in the CustomerController will call customerService's updateById() method.
         // That is why we provided a mock customerService. So, here check if related method is called.
         // verify updateById() method is called with any UUID and customer parameters:
-        verify(customerService).updateById(any(UUID.class), any(Customer.class));
+        verify(customerService).updateById(uuidArgumentCaptor.capture(), any(Customer.class));
+
+        assertThat(testCustomer.getId().equals(uuidArgumentCaptor.getValue()));
     }
 
     @Test
