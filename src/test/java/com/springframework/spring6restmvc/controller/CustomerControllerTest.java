@@ -14,13 +14,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -43,6 +47,9 @@ class CustomerControllerTest {
     @Captor // Define a class level argument captor for UUID to reuse it whenever needed.
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
+    @Captor
+    ArgumentCaptor<Customer> customerArgumentCaptor;
+
     CustomerServiceImpl customerServiceImpl; // to generate test objects for verification
 
     @BeforeEach // before running each test methods, run the following method
@@ -53,6 +60,34 @@ class CustomerControllerTest {
         // That is why, we provide a new customerServiceImpl object for each test method separately.
     }
 
+
+    @Test
+    void patchCustomerById() throws Exception {
+        Customer testCustomer = customerServiceImpl.listCustomers().get(0);
+
+        // following map represents the patch - properties to be updated
+        Map<String, Object> patchMap = new HashMap<>();
+        patchMap.put("name", "New Customer Name");
+
+        // HTTP PATCH .../api/v1/customer/{customerId}
+        // add 'Accept' header to tell client accepts json results
+        // add 'Content-Type' header to tell client is sending content in json format
+        // write patch object in json format into the body
+        // Then, check if response has status code 204 NO CONTENT
+        mockMvc.perform(patch("/api/v1/customer/" + testCustomer.getId())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(patchMap)))
+                .andExpect(status().isNoContent());
+
+        // verify that mock customerService's patchCustomerById method is called and capture the arguments passed into this method
+        verify(customerService).patchCustomerById(uuidArgumentCaptor.capture(), customerArgumentCaptor.capture());
+
+        // Check if the passed arguments are proper.
+        assertThat(testCustomer.getId().equals(uuidArgumentCaptor.getValue()));
+        assertThat(patchMap.get("name").equals(customerArgumentCaptor.getValue()));
+
+    }
 
     @Test
     void deleteById() throws Exception {
