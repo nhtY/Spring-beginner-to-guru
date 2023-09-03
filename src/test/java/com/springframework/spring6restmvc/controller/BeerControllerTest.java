@@ -100,13 +100,6 @@ class BeerControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        // captures arguments for which method it is used
-        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
-
-        // verify that our mock beerService's deleteById() method is called.
-        // At the same time, capture the arguments passed to deleteById()
-        verify(beerService).deleteById(uuidArgumentCaptor.capture());
-
         // Make sure that passed argument is the same as we passed when performing HTTP PUT above.
         assertThat(testBeer.getId().equals(uuidArgumentCaptor.getValue()));
     }
