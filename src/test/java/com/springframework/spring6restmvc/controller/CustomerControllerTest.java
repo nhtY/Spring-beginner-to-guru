@@ -12,8 +12,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +43,31 @@ class CustomerControllerTest {
         // In some test methods we make modifications in customerServiceImpl (setting customer id null etc.).
         // Those changes will affect other tests if they use the modified objects.
         // That is why, we provide a new customerServiceImpl object for each test method separately.
+    }
+
+
+    @Test
+    void updateById() throws Exception {
+        Customer testCustomer = customerServiceImpl.listCustomers().get(0);
+
+        // We did not use given() because our handler method or service do not create anything.
+        // So, there is no need to create mock/fake objects.
+
+        // HTTP PUT ../api/v1/customer/{customerId}
+        // add 'Accept' header telling that client accepts json results
+        // add 'Content-Type' header to indicate that client sending json as content in the body
+        // write the customer object in JSON format into the content body
+        // Then, check if response has status code 204 NO CONTENT
+        mockMvc.perform(put("/api/v1/customer/" + testCustomer.getId().toString())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testCustomer)))
+                .andExpect(status().isNoContent());
+
+        // We expect handler method in the CustomerController will call customerService's updateById() method.
+        // That is why we provided a mock customerService. So, here check if related method is called.
+        // verify updateById() method is called with any UUID and customer parameters:
+        verify(customerService).updateById(any(UUID.class), any(Customer.class));
     }
 
     @Test
