@@ -6,6 +6,7 @@ import com.springframework.spring6restmvc.services.CustomerService;
 import com.springframework.spring6restmvc.services.CustomerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,9 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,6 +47,29 @@ class CustomerControllerTest {
         // In some test methods we make modifications in customerServiceImpl (setting customer id null etc.).
         // Those changes will affect other tests if they use the modified objects.
         // That is why, we provide a new customerServiceImpl object for each test method separately.
+    }
+
+
+    @Test
+    void deleteById() throws Exception {
+        Customer testCustomer = customerServiceImpl.listCustomers().get(0);
+
+        // HTTP DELETE .../api/v1/customer/{customerId}
+        // add 'Accept' header
+        // Then, check if response has status code 204 NO CONTENT
+        mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        // Using argument captor, capture the arguments passed to the mock customerService object's deleteById() method.
+        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+
+        // Verify that mock customerService's deleteById() method is called:
+        verify(customerService).deleteById(uuidArgumentCaptor.capture());
+
+        // make sure that deleteById() of mock service is called with proper arguments:
+        assertThat(testCustomer.getId().equals(uuidArgumentCaptor.getValue()));
+
     }
 
 
