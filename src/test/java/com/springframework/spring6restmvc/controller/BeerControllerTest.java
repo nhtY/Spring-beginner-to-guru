@@ -76,7 +76,7 @@ class BeerControllerTest {
         // add 'Content-Type' header to tell client sending a json
         // write patch into the body of the request
         // Then, check if response has status 204 NO CONTENT
-        mockMvc.perform(patch(BeerController.BEER_PATH + "/" + testBeer.getId())
+        mockMvc.perform(patch(BeerController.BEER_PATH_ID, testBeer.getId())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(patchMap)))
@@ -96,9 +96,11 @@ class BeerControllerTest {
     void deleteById() throws Exception {
         Beer testBeer = beerServiceImpl.listBeers().get(0);
 
-        mockMvc.perform(delete(BeerController.BEER_PATH + "/" + testBeer.getId().toString())
+        mockMvc.perform(delete(BeerController.BEER_PATH_ID, testBeer.getId().toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        verify(beerService).deleteById(uuidArgumentCaptor.capture());
 
         // Make sure that passed argument is the same as we passed when performing HTTP PUT above.
         assertThat(testBeer.getId().equals(uuidArgumentCaptor.getValue()));
@@ -115,7 +117,7 @@ class BeerControllerTest {
         // add 'Content-Type' header with application/json to indicate the format of the content which is being sent
         // write the beer object in json format into the body of the request
         // Then, check if the response has status code 204 NO CONTENT
-        mockMvc.perform(put(BeerController.BEER_PATH + "/" + testBeer.getId().toString())
+        mockMvc.perform(put(BeerController.BEER_PATH_ID, testBeer.getId().toString())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testBeer)))
@@ -182,7 +184,7 @@ class BeerControllerTest {
         // Then, check if there is a result as content and if its type is JSON
         // Then, check if returned beer id = test beer id
         // Then, check if returned beer name = test beer name
-        mockMvc.perform(get(BeerController.BEER_PATH + "/" + testBeer.getId())
+        mockMvc.perform(get(BeerController.BEER_PATH_ID, testBeer.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
