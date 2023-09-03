@@ -1,5 +1,7 @@
 package com.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springframework.spring6restmvc.model.Beer;
 import com.springframework.spring6restmvc.services.BeerService;
 import com.springframework.spring6restmvc.services.BeerServiceImpl;
@@ -31,6 +33,16 @@ class BeerControllerTest {
 
     // to reach the beer objects in the hashmap of BeerServiceImpl
     BeerServiceImpl beerServiceImpl = new BeerServiceImpl();
+
+
+    @Test
+    void testCreateNewBeer() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules(); // to avoid dateTime related errors
+
+        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        System.out.println(objectMapper.writeValueAsString(testBeer));
+    }
 
     @Test
     void testListBeers() throws Exception {
