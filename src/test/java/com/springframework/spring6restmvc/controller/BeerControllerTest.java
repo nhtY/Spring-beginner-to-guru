@@ -27,6 +27,9 @@ class BeerControllerTest {
     @Autowired
     MockMvc mockMvc; // will be used to create mock/fake requests and responses instead of via a running server
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     // Our controller needs BeerService object. So, create a fake instance of that class to be able to test the controller properly:
     @MockBean
     BeerService beerService;
@@ -37,8 +40,6 @@ class BeerControllerTest {
 
     @Test
     void testCreateNewBeer() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules(); // to avoid dateTime related errors
 
         Beer testBeer = beerServiceImpl.listBeers().get(0);
         System.out.println(objectMapper.writeValueAsString(testBeer));
