@@ -1,10 +1,10 @@
 package com.springframework.spring6restmvc.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springframework.spring6restmvc.model.Beer;
 import com.springframework.spring6restmvc.services.BeerService;
 import com.springframework.spring6restmvc.services.BeerServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -35,14 +37,35 @@ class BeerControllerTest {
     BeerService beerService;
 
     // to reach the beer objects in the hashmap of BeerServiceImpl
-    BeerServiceImpl beerServiceImpl = new BeerServiceImpl();
+    BeerServiceImpl beerServiceImpl;
 
+    @BeforeEach // before each test method, run the following
+    void setUp() {
+        beerServiceImpl = new BeerServiceImpl(); // each test method will have separate beerServiceImpl
+    }
 
     @Test
-    void testCreateNewBeer() throws JsonProcessingException {
-
+    void testCreateNewBeer() throws Exception {
+        // following beer represents the beer sent by client. So, its id and version data are null
         Beer testBeer = beerServiceImpl.listBeers().get(0);
-        System.out.println(objectMapper.writeValueAsString(testBeer));
+        testBeer.setId(null);
+        testBeer.setVersion(null);
+
+        // when handler method receives any beer object it will return the second beer item from our list.
+        // That beer object represents the created beer. So, it will have id and version data.
+        given(beerService.saveNewBeer(any(Beer.class))).willReturn(beerServiceImpl.listBeers().get(1));
+
+        // HTTP POST .../api/v1/beer
+        // set accept header to application/json
+        // in body of the request write the beer object in json format
+        // Then, check if response code is 201 Content Created
+        // Then, check if response header contains 'Location' header.
+        mockMvc.perform(post("/api/v1/beer")
+                .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testBeer)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 
     @Test
