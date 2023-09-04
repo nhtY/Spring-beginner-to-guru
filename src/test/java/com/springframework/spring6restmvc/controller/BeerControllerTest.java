@@ -170,6 +170,19 @@ class BeerControllerTest {
     }
 
     @Test
+    void getBeerByIdNotFound() throws Exception {
+        // When our mock beerService's getBeerById method is called with any UUID parameter
+        // it will throw a NotFoundException causing the test to fail.
+        given(beerService.getBeerById(any(UUID.class))).willThrow(NotFoundException.class);
+
+        // HTTP GET .../api/v1/beer/{beerId}
+        // When the controller's handler method interacts with the beerService
+        // a NotFoundException will be thrown that will cause test to fail.
+        mockMvc.perform(get(BeerController.BEER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getBeerById() throws Exception {
 
         // get the first beer in the list to use as a test object
