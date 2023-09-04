@@ -180,8 +180,7 @@ class BeerControllerTest {
         // HTTP GET .../api/v1/beer/{beerId}
         // When the controller's handler method interacts with the beerService
         // a NotFoundException will be thrown that may cause test to fail.
-        // Check if Global ExceptionController's ExceptionHandler handles the exception
-        // and returns a response with status 404 Not Found.
+        // Check if a response with status 404 NOT FOUND is returned
         mockMvc.perform(get(BeerController.BEER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
