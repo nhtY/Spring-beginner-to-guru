@@ -2,14 +2,16 @@ package com.springframework.spring6restmvc.bootstrap;
 
 import com.springframework.spring6restmvc.repositories.BeerRepository;
 import com.springframework.spring6restmvc.repositories.CustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@WebMvcTest
+@Slf4j
+@DataJpaTest
 class BootstrapDataTest {
 
     @Autowired
