@@ -70,6 +70,16 @@ public class BeerController {
         return beerService.listBeers();
     }
 
+    // 'For BeerController class', if any method throws a NotFoundException that we created
+    // following handler method, handles the exception and returns a ResponseEntity with status 404 NOT FOUND.
+    // We have full control on the response, but here we just return a response without a body, error message, etc.
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity handleNotFoundException() {
+        log.debug("Handling NotFoundException for BeerController class - in BeerController");
+
+        return ResponseEntity.notFound().build();
+    }
+
     @GetMapping(BEER_PATH_ID)
     public Beer getBeerById(@PathVariable("beerId") UUID beerId) {
 
