@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -174,11 +175,11 @@ class CustomerControllerTest {
 
     @Test
     void getCustomerByIdNotFound() throws Exception {
-        // When mock customerService's getCustomerById() method is called throw a NotFoundException
-        given(customerService.getCustomerById(any(UUID.class))).willThrow(NotFoundException.class);
+        // When mock customerService's getCustomerById() method is called return an empty optional
+        given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
 
         // HTTP GET ../api/v1/customer/{customerId}
-        // A NotFoundException will be thrown that may cause test to fail.
+        // A NotFoundException will be thrown by customer controller that may cause test to fail.
         // Then, check if response has status 404 NOT FOUND.
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
@@ -189,7 +190,7 @@ class CustomerControllerTest {
 
         Customer testCustomer = customerServiceImpl.listCustomers().get(0);
 
-        given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
+        given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON))

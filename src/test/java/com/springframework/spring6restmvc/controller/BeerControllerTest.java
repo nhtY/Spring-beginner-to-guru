@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,14 +173,12 @@ class BeerControllerTest {
     @Test
     void getBeerByIdNotFound() throws Exception {
         // When our mock beerService's getBeerById method is called with any UUID parameter
-        // it will throw a NotFoundException causing the test to fail.
-        // However, now we have an ExceptionHandler method in BeerController for NotFoundException.
-        // So, the exception will be caught by that handler
-        given(beerService.getBeerById(any(UUID.class))).willThrow(NotFoundException.class);
+        // it will return empty optional that triggers NotFoundException
+        given(beerService.getBeerById(any(UUID.class))).willReturn(Optional.empty());
 
         // HTTP GET .../api/v1/beer/{beerId}
         // When the controller's handler method interacts with the beerService
-        // a NotFoundException will be thrown that may cause test to fail.
+        // a NotFoundException will be thrown by controller that may cause test to fail.
         // Check if a response with status 404 NOT FOUND is returned
         mockMvc.perform(get(BeerController.BEER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
@@ -192,7 +191,7 @@ class BeerControllerTest {
         Beer testBeer = beerServiceImpl.listBeers().get(0);
 
         // if method returns a beer, then mockito will return the testBeer.
-        given(beerService.getBeerById(testBeer.getId())).willReturn(testBeer);
+        given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
 
         // HTTP GET : .../api/v1/beer/{UUID}
         // write 'Accept' header into the request.
