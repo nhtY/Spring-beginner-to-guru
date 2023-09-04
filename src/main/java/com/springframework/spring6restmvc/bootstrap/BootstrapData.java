@@ -23,6 +23,8 @@ public class BootstrapData implements CommandLineRunner {
     private final BeerRepository beerRepository;
     private final CustomerRepository customerRepository;
 
+    public UUID manuallySetId;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -83,12 +85,14 @@ public class BootstrapData implements CommandLineRunner {
         if (customerRepository.count() == 0) {
 
             Customer customer1 = Customer.builder()
-                    .id(UUID.randomUUID())
+                    .id(UUID.randomUUID()) // this ID will not be used. Hibernate generates and hibernate-generated value will be persisted.
                     .name("John Spring")
-                    .version(1)
                     .createdDate(LocalDateTime.now())
                     .lastModifiedDate(LocalDateTime.now())
                     .build();
+
+            // will be used in test to see if this id will be persisted or hibernate generates its own id
+            manuallySetId = customer1.getId();
 
             log.debug("Customer Name: {}, ID: {}", customer1.getName(), customer1.getId());
 

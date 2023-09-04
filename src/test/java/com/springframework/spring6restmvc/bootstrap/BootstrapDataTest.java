@@ -1,5 +1,6 @@
 package com.springframework.spring6restmvc.bootstrap;
 
+import com.springframework.spring6restmvc.entities.Customer;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
 import com.springframework.spring6restmvc.repositories.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,5 +36,18 @@ class BootstrapDataTest {
         // check if initial data loaded, we have 3 records per tables:
         assertThat(beerRepository.count()).isEqualTo(3);
         assertThat(customerRepository.count()).isEqualTo(3);
+    }
+
+    @Test
+    void testManualSetIdNotEqualsHibernateGeneratedValue() throws Exception {
+        bootstrapData.run(null);
+
+        Customer savedCustomer = customerRepository.findAll().stream()
+                .filter(c -> c.getName().equals("John Spring")).findAny().get();
+
+        log.debug("User generated ID for the customer: {}", bootstrapData.manuallySetId);
+        log.debug("Saved Customer's Hibernate Generated ID: {}", savedCustomer.getId());
+
+        assertThat(bootstrapData.manuallySetId).isNotEqualTo(savedCustomer.getId());
     }
 }
