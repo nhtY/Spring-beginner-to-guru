@@ -173,6 +173,20 @@ class CustomerControllerTest {
     }
 
     @Test
+    void getCustomerByIdNotFound() throws Exception {
+        // When mock customerService's getCustomerById() method is called throw a NotFoundException
+        given(customerService.getCustomerById(any(UUID.class))).willThrow(NotFoundException.class);
+
+        // HTTP GET ../api/v1/customer/{customerId}
+        // A NotFoundException will be thrown that may cause test to fail.
+        // Then, check if response has status 404 NOT FOUND.
+        // In other words: Check if Global ExceptionController's ExceptionHandler handles the exception
+        // and returns a response with status 404 Not Found.
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getCustomerById() throws Exception {
 
         Customer testCustomer = customerServiceImpl.listCustomers().get(0);
