@@ -1,7 +1,7 @@
 package com.springframework.spring6restmvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springframework.spring6restmvc.model.Beer;
+import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.services.BeerService;
 import com.springframework.spring6restmvc.services.BeerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +53,7 @@ class BeerControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Beer> beerArgumentCaptor;
+    ArgumentCaptor<BeerDTO> beerArgumentCaptor;
 
     // to reach the beer objects in the hashmap of BeerServiceImpl
     BeerServiceImpl beerServiceImpl;
@@ -66,7 +66,7 @@ class BeerControllerTest {
 
     @Test
     void patchBeerById() throws Exception {
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
         // following Map represents the patch - properties wanted to be updated
         Map<String, Object> patchMap = new HashMap<>();
@@ -95,7 +95,7 @@ class BeerControllerTest {
 
     @Test
     void deleteById() throws Exception {
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
         mockMvc.perform(delete(BeerController.BEER_PATH_ID, testBeer.getId().toString())
                 .accept(MediaType.APPLICATION_JSON))
@@ -109,7 +109,7 @@ class BeerControllerTest {
 
     @Test
     void updateById() throws Exception {
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
         // We did not use given() because the handler method creates nothing. So, there is nothing to mock.
 
@@ -126,19 +126,19 @@ class BeerControllerTest {
 
         // we need to verify that handler method called our mock beerService's updateById() method.
         // Verify that updateById() is called with any UUID and Beer parameters:
-        verify(beerService).updateById(any(UUID.class), any(Beer.class));
+        verify(beerService).updateById(any(UUID.class), any(BeerDTO.class));
     }
 
     @Test
     void testCreateNewBeer() throws Exception {
         // following beer represents the beer sent by client. So, its id and version data are null
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
         testBeer.setId(null);
         testBeer.setVersion(null);
 
         // when handler method receives any beer object it will return the second beer item from our list.
         // That beer object represents the created beer. So, it will have id and version data.
-        given(beerService.saveNewBeer(any(Beer.class))).willReturn(beerServiceImpl.listBeers().get(1));
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(1));
 
         // HTTP POST .../api/v1/beer
         // set accept header to application/json
@@ -188,7 +188,7 @@ class BeerControllerTest {
     void getBeerById() throws Exception {
 
         // get the first beer in the list to use as a test object
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
         // if method returns a beer, then mockito will return the testBeer.
         given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
