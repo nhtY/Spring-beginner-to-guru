@@ -1,5 +1,6 @@
 package com.springframework.spring6restmvc.controller;
 
+import com.springframework.spring6restmvc.entities.Beer;
 import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // Integration test for BeerController
 // Test the controller and its integration with JPA data layer
@@ -22,6 +25,21 @@ class BeerControllerIT {
 
     @Autowired
     BeerRepository beerRepository;
+
+    @Test
+    void testGetByIdNotFoundError() {
+        assertThrows(NotFoundException.class,() -> beerController.getBeerById(UUID.randomUUID()));
+    }
+
+    @Test
+    void testGetBeerById() {
+
+        Beer testBeer = beerRepository.findAll().get(0);
+
+        BeerDTO dto = beerController.getBeerById(testBeer.getId());
+
+        assertThat(dto).isNotNull();
+    }
 
     @Test
     void testListBeers() {
