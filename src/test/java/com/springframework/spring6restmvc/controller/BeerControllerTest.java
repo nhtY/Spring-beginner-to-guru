@@ -111,7 +111,8 @@ class BeerControllerTest {
     void updateById() throws Exception {
         BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
-        // We did not use given() because the handler method creates nothing. So, there is nothing to mock.
+        // When beer controller invokes updateById() of the service, service returns the updated resource. Imitate it
+        given(beerService.updateById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(testBeer));
 
         // HTTP PUT .../api/v1/beer/{beerId}
         // add 'Accept' header with value application/json
