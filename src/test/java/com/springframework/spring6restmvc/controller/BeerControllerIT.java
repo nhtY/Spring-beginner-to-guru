@@ -1,6 +1,7 @@
 package com.springframework.spring6restmvc.controller;
 
 import com.springframework.spring6restmvc.entities.Beer;
+import com.springframework.spring6restmvc.mappers.BeerMapper;
 import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,36 @@ class BeerControllerIT {
 
     @Autowired
     BeerRepository beerRepository;
+
+    @Autowired
+    BeerMapper beerMapper;
+
+    @Test
+    void testUpdateById() {
+        // If we can update, we already have a BeerDTO. Simulate the resource gathering process:
+        Beer beer = beerRepository.findAll().get(0);
+        BeerDTO beerDTO = beerMapper.beerToBeerDto(beer);
+
+        // Now, change some properties of the gathered resource
+        final String beerName = "UPDATED";
+        beerDTO.setBeerName(beerName);
+
+        // when client updates resource, He will not send id(cannot be changed) and version(determined by Hibernate) data:
+        // set them null
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+
+        // Now, can update:
+        ResponseEntity responseEntity = beerController.updateById(beer.getId(), beerDTO);
+
+        // check if response has the status 204 NO CONTENT
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        // really updated?
+        Beer updatedBeer = beerRepository.findById(beer.getId()).get();
+        assertThat(updatedBeer.getBeerName()).isEqualTo(beerDTO.getBeerName());
+
+    }
 
     @Rollback
     @Transactional
