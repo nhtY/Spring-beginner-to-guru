@@ -41,6 +41,8 @@ class BeerControllerIT {
 
     }
 
+    @Rollback
+    @Transactional
     @Test
     void testUpdateById() {
         // If we can update, we already have a BeerDTO. Simulate the resource gathering process:
