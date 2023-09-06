@@ -79,7 +79,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateById(UUID customerId, CustomerDTO customer) {
+    public Optional<CustomerDTO> updateById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customerMap.get(customerId);
 
         log.debug("Customer before update: {}", existing);
@@ -88,6 +88,8 @@ public class CustomerServiceImpl implements CustomerService {
         existing.setLastModifiedDate(LocalDateTime.now());
 
         log.debug("Customer after update: {}", existing);
+
+        return Optional.of(existing);
     }
 
     @Override

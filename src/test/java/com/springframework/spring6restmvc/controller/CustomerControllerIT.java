@@ -2,6 +2,7 @@ package com.springframework.spring6restmvc.controller;
 
 
 import com.springframework.spring6restmvc.entities.Customer;
+import com.springframework.spring6restmvc.mappers.CustomerMapper;
 import com.springframework.spring6restmvc.model.CustomerDTO;
 import com.springframework.spring6restmvc.repositories.CustomerRepository;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,35 @@ class CustomerControllerIT {
 
     @Autowired
     CustomerRepository customerRepository;
+
+    @Autowired
+    CustomerMapper customerMapper;
+
+    @Test
+    void testUpdateByIdNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            customerController.updateById(UUID.randomUUID(), CustomerDTO.builder().build());
+        });
+    }
+
+    @Test
+    void testUpdateById() {
+        Customer testCustomer = customerRepository.findAll().get(0);
+        CustomerDTO dto = customerMapper.customerToCustomerDto(testCustomer);
+
+        dto.setId(null);
+        dto.setVersion(null);
+        final String nameUpdated = "UPDATED";
+        dto.setName(nameUpdated);
+
+        ResponseEntity responseEntity = customerController.updateById(testCustomer.getId(), dto);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        // updated??
+        assertThat(customerRepository.findById(testCustomer.getId()).get().getName()).isEqualTo(nameUpdated);
+
+    }
 
     @Test
     void testCreateNewCustomer() {

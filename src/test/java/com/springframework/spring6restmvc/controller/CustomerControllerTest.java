@@ -113,8 +113,9 @@ class CustomerControllerTest {
     void updateById() throws Exception {
         CustomerDTO testCustomer = customerServiceImpl.listCustomers().get(0);
 
-        // We did not use given() because our handler method or service do not create anything.
-        // So, there is no need to create mock/fake objects.
+        // Refactored customerService now returns updated resource. When Controller calls updateById of the service
+        // an optional customerDTO object is returned. So, mock that object
+        given(customerService.updateById(any(UUID.class), any(CustomerDTO.class))).willReturn(Optional.of(testCustomer));
 
         // HTTP PUT ../api/v1/customer/{customerId}
         // add 'Accept' header telling that client accepts json results
