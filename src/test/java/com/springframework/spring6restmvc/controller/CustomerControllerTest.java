@@ -93,6 +93,8 @@ class CustomerControllerTest {
     void deleteById() throws Exception {
         CustomerDTO testCustomer = customerServiceImpl.listCustomers().get(0);
 
+        given(customerService.deleteById(any(UUID.class))).willReturn(true);
+
         // HTTP DELETE .../api/v1/customer/{customerId}
         // add 'Accept' header
         // Then, check if response has status code 204 NO CONTENT
