@@ -123,7 +123,7 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void patchBeerById(UUID beerId, BeerDTO beer) {
+    public Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beer) {
         BeerDTO existing = beerMap.get(beerId);
 
         log.debug("Beer before patch: {}", existing);
@@ -149,6 +149,8 @@ public class BeerServiceImpl implements BeerService {
         }
 
         log.debug("Beer after patch: {}", existing);
+
+        return Optional.of(existing);
     }
 
 }

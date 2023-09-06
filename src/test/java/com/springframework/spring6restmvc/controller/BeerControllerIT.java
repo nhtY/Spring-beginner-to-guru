@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +32,39 @@ class BeerControllerIT {
 
     @Autowired
     BeerMapper beerMapper;
+
+    @Test
+    void testPatchByIdNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            beerController.patchBeerById(UUID.randomUUID(), BeerDTO.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testPatchBeerById() {
+        Beer beer = beerRepository.findAll().get(0);
+        BeerDTO dto = beerMapper.beerToBeerDto(beer);
+
+        dto.setId(null);
+        dto.setVersion(null);
+
+        final String updatedName = "Updated";
+        final Double newPrice = 8.99;
+        dto.setBeerName(updatedName);
+        dto.setPrice(BigDecimal.valueOf(newPrice));
+
+        ResponseEntity responseEntity = beerController.patchBeerById(beer.getId(), dto);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        Beer saved = beerRepository.findById(beer.getId()).get();
+
+        assertThat(saved.getBeerName()).isEqualTo(updatedName);
+        assertThat(saved.getPrice()).isEqualTo(BigDecimal.valueOf(newPrice));
+
+    }
 
     @Test
     void testDeleteByIdNotFound() {

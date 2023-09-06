@@ -72,6 +72,17 @@ class BeerControllerTest {
         Map<String, Object> patchMap = new HashMap<>();
         patchMap.put("beerName", "New Beer Name");
 
+        BeerDTO dto = BeerDTO.builder()
+                .id(testBeer.getId())
+                .beerName(patchMap.get("beerName").toString())
+                .upc(testBeer.getUpc())
+                .version(testBeer.getVersion())
+                .price(testBeer.getPrice())
+                .quantityOnHand(testBeer.getQuantityOnHand())
+                .build();
+
+        given(beerService.patchBeerById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(dto));
+
         // HTTP PATCH .../api/v1/beer/{beerId}
         // add 'Accept' header to tell json results accepted
         // add 'Content-Type' header to tell client sending a json
