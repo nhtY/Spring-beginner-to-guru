@@ -33,6 +33,15 @@ class BeerControllerIT {
     BeerMapper beerMapper;
 
     @Test
+    void testUpdateByIdNotFound() {
+
+        assertThrows(NotFoundException.class, () -> {
+            beerController.updateById(UUID.randomUUID(), BeerDTO.builder().build());
+        });
+
+    }
+
+    @Test
     void testUpdateById() {
         // If we can update, we already have a BeerDTO. Simulate the resource gathering process:
         Beer beer = beerRepository.findAll().get(0);
