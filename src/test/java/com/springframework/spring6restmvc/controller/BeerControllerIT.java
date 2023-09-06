@@ -6,6 +6,8 @@ import com.springframework.spring6restmvc.repositories.BeerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,34 @@ class BeerControllerIT {
 
     @Autowired
     BeerRepository beerRepository;
+
+    @Rollback
+    @Transactional
+    @Test
+    void testSaveNewBeer() {
+        // dto to be posted
+        BeerDTO dto = BeerDTO.builder()
+                .beerName("New Beer")
+                .build();
+
+        // post it and get the returned result
+        ResponseEntity responseEntity = beerController.handlePost(dto);
+
+        // Check if status is 201 CREATED and response has 'Location' header.
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
+
+        // is it really saved?
+        // From location header, extract the UUID of the created resource
+        String[] locationUUID = responseEntity.getHeaders().getLocation().getPath().split("/");
+        // api/v1/beer/{beerId} so the 4th element -> index=3
+        UUID savedUUID = UUID.fromString(locationUUID[3]);
+
+        // Use extracted UUID to find recently created resource in DB.
+        Beer beer = beerRepository.findById(savedUUID).get();
+        assertThat(beer).isNotNull();
+
+    }
 
     @Test
     void testGetByIdNotFoundError() {
