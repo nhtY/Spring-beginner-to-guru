@@ -97,6 +97,9 @@ class BeerControllerTest {
     void deleteById() throws Exception {
         BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
+        // service's deleteById() returns a Boolean. Fake it:
+        given(beerService.deleteById(any(UUID.class))).willReturn(true);
+
         mockMvc.perform(delete(BeerController.BEER_PATH_ID, testBeer.getId().toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
