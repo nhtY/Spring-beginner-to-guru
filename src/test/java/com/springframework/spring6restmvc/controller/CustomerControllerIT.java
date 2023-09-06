@@ -32,6 +32,30 @@ class CustomerControllerIT {
     CustomerMapper customerMapper;
 
     @Test
+    void testPatchCustomerByIdNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+           customerController.patchCustomerById(UUID.randomUUID(), CustomerDTO.builder().build());
+        });
+    }
+
+    @Test
+    void testPatchCustomerById() {
+        Customer customer = customerRepository.findAll().get(0);
+        CustomerDTO dto = customerMapper.customerToCustomerDto(customer);
+
+        dto.setId(null);
+        dto.setVersion(null);
+        final String updatedName = "Updated";
+        dto.setName(updatedName);
+
+        ResponseEntity responseEntity = customerController.patchCustomerById(customer.getId(), dto);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        assertThat(customerRepository.findById(customer.getId()).get().getName()).isEqualTo(updatedName);
+    }
+
+    @Test
     void testDeleteByIdNotFound() {
 
         assertThrows(NotFoundException.class, () -> {

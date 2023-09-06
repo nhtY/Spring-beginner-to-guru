@@ -102,7 +102,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, CustomerDTO customer) {
+    public Optional<CustomerDTO> patchCustomerById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customerMap.get(customerId);
 
         log.debug("Customer before patch: {}", existing);
@@ -112,5 +112,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         log.debug("Customer after patch: {}", existing);
+
+        return Optional.of(existing);
     }
 }

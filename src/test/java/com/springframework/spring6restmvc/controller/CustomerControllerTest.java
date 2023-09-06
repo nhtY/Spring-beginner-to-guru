@@ -69,6 +69,16 @@ class CustomerControllerTest {
         Map<String, Object> patchMap = new HashMap<>();
         patchMap.put("name", "New Customer Name");
 
+        CustomerDTO updatedCopy = CustomerDTO.builder()
+                .id(testCustomer.getId())
+                .name(patchMap.get("name").toString())
+                .version(testCustomer.getVersion())
+                .createdDate(testCustomer.getCreatedDate())
+                .lastModifiedDate(testCustomer.getLastModifiedDate())
+                .build();
+
+        given(customerService.patchCustomerById(any(UUID.class), any(CustomerDTO.class))).willReturn(Optional.of(updatedCopy));
+
         // HTTP PATCH .../api/v1/customer/{customerId}
         // add 'Accept' header to tell client accepts json results
         // add 'Content-Type' header to tell client is sending content in json format
