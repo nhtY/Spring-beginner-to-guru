@@ -7,6 +7,8 @@ import com.springframework.spring6restmvc.repositories.CustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,25 @@ class CustomerControllerIT {
 
     @Autowired
     CustomerRepository customerRepository;
+
+    @Test
+    void testCreateNewCustomer() {
+        CustomerDTO dto = CustomerDTO.builder()
+                .name("New Customer")
+                .build();
+
+        ResponseEntity responseEntity = customerController.createNewCustomer(dto);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
+
+        // really created?
+        String[] locationUUID = responseEntity.getHeaders().getLocation().getPath().split("/");
+        UUID savedUUID = UUID.fromString(locationUUID[3]);
+
+        Customer savedCustomer = customerRepository.findById(savedUUID).get();
+        assertThat(savedCustomer).isNotNull();
+    }
 
     @Test
     void testGetCustomerByIdNotFound() {
