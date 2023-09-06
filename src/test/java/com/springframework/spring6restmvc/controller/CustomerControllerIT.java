@@ -37,7 +37,8 @@ class CustomerControllerIT {
            customerController.patchCustomerById(UUID.randomUUID(), CustomerDTO.builder().build());
         });
     }
-
+    @Rollback
+    @Transactional
     @Test
     void testPatchCustomerById() {
         Customer customer = customerRepository.findAll().get(0);
