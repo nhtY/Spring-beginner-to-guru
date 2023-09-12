@@ -72,14 +72,14 @@ class BeerControllerTest {
         given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(1));
 
         // Test if @Validated annotation throws error when null beerName is received.
-        // It will return with:
-        //      Status = 400
-        //      Error message = Invalid request content.
+        // Now, the response body is: [{"beerName":"must not be blank"},{"beerName":"must not be null"}]
         MvcResult result =  mockMvc.perform(post(BeerController.BEER_PATH)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testBeerDTO)))
-                .andExpect(status().isBadRequest()).andReturn();
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2))) // expecting 2 errors: NotNull and NotBlank
+        .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
     }
