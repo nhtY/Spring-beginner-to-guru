@@ -78,7 +78,7 @@ class BeerControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testBeerDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(2))) // expecting 2 errors: NotNull and NotBlank
+                .andExpect(jsonPath("$.length()", is(6))) // expecting 6 errors: NotNull or NotBlank annotations used for several properties
         .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
@@ -139,6 +139,28 @@ class BeerControllerTest {
 
         // Make sure that passed argument is the same as we passed when performing HTTP PUT above.
         assertThat(testBeer.getId().equals(uuidArgumentCaptor.getValue()));
+    }
+
+    @Test
+    void testUpdateByIdBlankName() throws Exception {
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
+
+        testBeer.setBeerName(""); // set name blank
+
+        // When beer controller invokes updateById() of the service, service returns the updated resource. Imitate it
+        given(beerService.updateById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(testBeer));
+
+        // HTTP PUT .../api/v1/beer/{beerId}
+        // add 'Accept' header with value application/json
+        // add 'Content-Type' header with application/json to indicate the format of the content which is being sent
+        // write the beer object in json format into the body of the request
+        // Then, check if the response has status code 400 BAD REQUEST
+        mockMvc.perform(put(BeerController.BEER_PATH_ID, testBeer.getId().toString())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testBeer)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(1))); // [NotBlank]
     }
 
     @Test
