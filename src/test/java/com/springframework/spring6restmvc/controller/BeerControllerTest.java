@@ -63,6 +63,23 @@ class BeerControllerTest {
         beerServiceImpl = new BeerServiceImpl(); // each test method will have separate beerServiceImpl
     }
 
+    @Test
+    void testCreateBeerWithNullBeerName() throws Exception {
+
+        BeerDTO testBeerDTO = BeerDTO.builder().build(); // properties are all null
+
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(1));
+
+        // Test if @Validated annotation throws error when null beerName is received.
+        // It will return with:
+        //      Status = 400
+        //      Error message = Invalid request content.
+        mockMvc.perform(post(BeerController.BEER_PATH)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testBeerDTO)))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void patchBeerById() throws Exception {
