@@ -1,23 +1,33 @@
 package com.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springframework.spring6restmvc.entities.Beer;
 import com.springframework.spring6restmvc.mappers.BeerMapper;
 import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Integration test for BeerController
 // Test the controller and its integration with JPA data layer
@@ -33,11 +43,52 @@ class BeerControllerIT {
     @Autowired
     BeerMapper beerMapper;
 
+    // Let's use MockMvc to mock request from client. To do so, we need MockMvc bean in the WebApplicationContext
+    @Autowired
+    WebApplicationContext wac;
+
+    MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() {
+        // build a MockMvc instance in the context
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
     @Test
     void testPatchByIdNotFound() {
         assertThrows(NotFoundException.class, () -> {
             beerController.patchBeerById(UUID.randomUUID(), BeerDTO.builder().build());
         });
+    }
+
+    @Test
+    void patchBeerByIdTooLongName() throws Exception {
+        Beer testBeer = beerRepository.findAll().get(0);
+
+        // following Map represents the patch - properties wanted to be updated
+        Map<String, Object> patchMap = new HashMap<>();
+        patchMap.put("beerName", "Very Long Beer Name asdasd asdsadasd asdadsasd asdasdasd asdasdasd asdasdasd");
+
+
+        // HTTP PATCH .../api/v1/beer/{beerId}
+        // add 'Accept' header to tell json results accepted
+        // add 'Content-Type' header to tell client sending a json
+        // write patch into the body of the request
+        // Then, check if response has status 400 BAD REQUEST
+        MvcResult result = mockMvc.perform(patch(BeerController.BEER_PATH_ID, testBeer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchMap)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andReturn();
+
+        System.out.println("Response content for bad beerName: " + result.getResponse().getContentAsString());
+
     }
 
     @Rollback
