@@ -104,7 +104,7 @@ public class BeerServiceJPA implements BeerService {
 
             atomicReference.set(
                     Optional.of(
-                          beerMapper.beerToBeerDto(existing)
+                          beerMapper.beerToBeerDto(beerRepository.save(existing))
                     )
             );
 
