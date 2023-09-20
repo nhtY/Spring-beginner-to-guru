@@ -1,5 +1,6 @@
 package com.springframework.spring6restmvc.services;
 
+import com.springframework.spring6restmvc.entities.Beer;
 import com.springframework.spring6restmvc.mappers.BeerMapper;
 import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
@@ -24,20 +25,24 @@ public class BeerServiceJPA implements BeerService {
     @Override
     public List<BeerDTO> listBeers(String beerName) {
 
-        List<BeerDTO> beerDTOList;
+        List<Beer> beerDTOList;
 
         if (StringUtils.hasText(beerName)) {
             // TODO: do the implementation
-            beerDTOList = null;
+            beerDTOList = listBeerByName(beerName);
 
         } else {
-            beerDTOList = beerRepository.findAll()
-                    .stream()
-                    .map(beerMapper::beerToBeerDto)
-                    .collect(Collectors.toList());
+            beerDTOList = beerRepository.findAll();
         }
 
-        return beerDTOList;
+        return beerDTOList
+                .stream()
+                .map(beerMapper::beerToBeerDto)
+                .collect(Collectors.toList());
+    }
+
+    List<Beer> listBeerByName(String beerName) {
+        return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
     }
 
     @Override
