@@ -69,7 +69,7 @@ class BeerControllerTest {
 
         BeerDTO testBeerDTO = BeerDTO.builder().build(); // properties are all null
 
-        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers(null).get(1));
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers(null, null).get(1));
 
         // Test if @Validated annotation throws error when null beerName is received.
         // Now, the response body is: [{"beerName":"must not be blank"},{"beerName":"must not be null"}]
@@ -86,7 +86,7 @@ class BeerControllerTest {
 
     @Test
     void patchBeerById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
 
         // following Map represents the patch - properties wanted to be updated
         Map<String, Object> patchMap = new HashMap<>();
@@ -126,7 +126,7 @@ class BeerControllerTest {
 
     @Test
     void deleteById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
 
         // service's deleteById() returns a Boolean. Fake it:
         given(beerService.deleteById(any(UUID.class))).willReturn(true);
@@ -143,7 +143,7 @@ class BeerControllerTest {
 
     @Test
     void testUpdateByIdBlankName() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
 
         testBeer.setBeerName(""); // set name blank
 
@@ -165,7 +165,7 @@ class BeerControllerTest {
 
     @Test
     void updateById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
 
         // When beer controller invokes updateById() of the service, service returns the updated resource. Imitate it
         given(beerService.updateById(any(UUID.class), any(BeerDTO.class))).willReturn(Optional.of(testBeer));
@@ -189,13 +189,13 @@ class BeerControllerTest {
     @Test
     void testCreateNewBeer() throws Exception {
         // following beer represents the beer sent by client. So, its id and version data are null
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
         testBeer.setId(null);
         testBeer.setVersion(null);
 
         // when handler method receives any beer object it will return the second beer item from our list.
         // That beer object represents the created beer. So, it will have id and version data.
-        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers(null).get(1));
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers(null, null).get(1));
 
         // HTTP POST .../api/v1/beer
         // set accept header to application/json
@@ -213,7 +213,7 @@ class BeerControllerTest {
     @Test
     void testListBeers() throws Exception {
         // When mock beenService's listBeer method is called, return the result of beerServiceImpl.listBeers()
-        given(beerService.listBeers(null)).willReturn(beerServiceImpl.listBeers(null));
+        given(beerService.listBeers(null, null)).willReturn(beerServiceImpl.listBeers(null, null));
 
         // HTTP GET .../api/v1/beer
         // add 'Accept' header with value application json
@@ -245,7 +245,7 @@ class BeerControllerTest {
     void getBeerById() throws Exception {
 
         // get the first beer in the list to use as a test object
-        BeerDTO testBeer = beerServiceImpl.listBeers(null).get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers(null, null).get(0);
 
         // if method returns a beer, then mockito will return the testBeer.
         given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
