@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 // Integration test for BeerController
 // Test the controller and its integration with JPA data layer
@@ -56,6 +57,15 @@ class BeerControllerIT {
     void setUp() {
         // build a MockMvc instance in the context
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    void testListBeerByNameQueryParam() throws Exception {
+
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                .queryParam("beerName", "IPA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(100)));
     }
 
     @Test
@@ -221,7 +231,7 @@ class BeerControllerIT {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers();
+        List<BeerDTO> dtos = beerController.listBeers(null);
 
         assertThat(dtos.size()).isEqualTo(2413); // we know that CommandLineRunner will create and save 3 beers.
     }
@@ -235,7 +245,7 @@ class BeerControllerIT {
         // test if controller returns empty list, (not null, just empty list)
 
         beerRepository.deleteAll(); // this will affect other test. So after the test, a rollback can reset the state
-        List<BeerDTO> dtos = beerController.listBeers();
+        List<BeerDTO> dtos = beerController.listBeers(null);
 
         assertThat(dtos).isNotNull();
         assertThat(dtos.size()).isEqualTo(0);
