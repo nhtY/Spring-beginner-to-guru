@@ -23,10 +23,21 @@ public class BeerServiceJPA implements BeerService {
 
     @Override
     public List<BeerDTO> listBeers(String beerName) {
-        return beerRepository.findAll()
-                .stream()
-                .map(beerMapper::beerToBeerDto)
-                .collect(Collectors.toList());
+
+        List<BeerDTO> beerDTOList;
+
+        if (StringUtils.hasText(beerName)) {
+            // TODO: do the implementation
+            beerDTOList = null;
+
+        } else {
+            beerDTOList = beerRepository.findAll()
+                    .stream()
+                    .map(beerMapper::beerToBeerDto)
+                    .collect(Collectors.toList());
+        }
+
+        return beerDTOList;
     }
 
     @Override
