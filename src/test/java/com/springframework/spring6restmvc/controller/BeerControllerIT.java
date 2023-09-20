@@ -6,6 +6,7 @@ import com.springframework.spring6restmvc.mappers.BeerMapper;
 import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.model.BeerStyle;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
+import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,39 @@ class BeerControllerIT {
     void setUp() {
         // build a MockMvc instance in the context
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    void testListBeerByNameAndStyleQueryParamShowInventoryFalse() throws Exception {
+
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerName", "IPA")
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("showInventory", "False"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(310)))
+                .andExpect(jsonPath("$.[0].quantityOnHand").value(IsNull.nullValue()));
+    }
+
+    @Test
+    void testListBeerByNameAndStyleQueryParamShowInventoryTrue() throws Exception {
+
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("beerName", "IPA")
+                        .queryParam("showInventory", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(310)))
+                .andExpect(jsonPath("$.[0].quantityOnHand").value(IsNull.notNullValue()));
+    }
+    @Test
+    void testListBeerByNameAndStyleQueryParam() throws Exception {
+
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("beerName", "IPA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(310)));
     }
 
     @Test
@@ -241,7 +275,7 @@ class BeerControllerIT {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers(null, null);
+        List<BeerDTO> dtos = beerController.listBeers(null, null, null);
 
         assertThat(dtos.size()).isEqualTo(2413); // we know that CommandLineRunner will create and save 3 beers.
     }
@@ -255,7 +289,7 @@ class BeerControllerIT {
         // test if controller returns empty list, (not null, just empty list)
 
         beerRepository.deleteAll(); // this will affect other test. So after the test, a rollback can reset the state
-        List<BeerDTO> dtos = beerController.listBeers(null, null);
+        List<BeerDTO> dtos = beerController.listBeers(null, null, null);
 
         assertThat(dtos).isNotNull();
         assertThat(dtos.size()).isEqualTo(0);
