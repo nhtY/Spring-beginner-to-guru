@@ -27,6 +27,9 @@ public class Customer {
 
     @Version // at the beginning it is 0. After every change, it is incremented by 1
     private Integer version;
+
+    @Column(length = 255)
+    private String email;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 }
