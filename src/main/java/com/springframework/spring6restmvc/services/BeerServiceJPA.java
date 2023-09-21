@@ -7,6 +7,7 @@ import com.springframework.spring6restmvc.model.BeerStyle;
 import com.springframework.spring6restmvc.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -23,10 +24,38 @@ public class BeerServiceJPA implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+    private final static Integer DEFAULT_PAGE = 0;
+    private final static Integer DEFAULT_PAGE_SIZE = 25;
+    private final static Integer MAX_PAGE_SIZE = 1000;
+
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+        int queryPageNumber;
+        int queryPageSize;
+
+        if (pageNumber != null && pageNumber > 0) {
+            queryPageNumber = pageNumber -1; // in DB starts from 0
+        }else {
+            queryPageNumber = DEFAULT_PAGE;
+        }
+
+        if (pageSize == null) {
+            queryPageSize = DEFAULT_PAGE_SIZE;
+        }else {
+            if (pageSize > MAX_PAGE_SIZE) {
+                queryPageSize = MAX_PAGE_SIZE;
+            }else {
+                queryPageSize = pageSize;
+            }
+        }
+
+        return PageRequest.of(queryPageNumber, queryPageSize);
+    }
+
     @Override
     public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean isShowInventory, Integer pageNumber, Integer pageSize) {
 
         List<Beer> beerList;
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
 
         if (StringUtils.hasText(beerName) && beerStyle == null) {
             beerList = listBeerByName(beerName);
