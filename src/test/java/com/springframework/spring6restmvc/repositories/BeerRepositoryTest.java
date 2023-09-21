@@ -2,7 +2,6 @@ package com.springframework.spring6restmvc.repositories;
 
 import com.springframework.spring6restmvc.bootstrap.BootstrapData;
 import com.springframework.spring6restmvc.entities.Beer;
-import com.springframework.spring6restmvc.model.BeerDTO;
 import com.springframework.spring6restmvc.model.BeerStyle;
 import com.springframework.spring6restmvc.services.BeerCsvServiceImpl;
 import jakarta.validation.ConstraintViolationException;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,9 +27,9 @@ class BeerRepositoryTest {
     @Test
     void testListBeerByNameIsLikeIgnoreCase() {
         // %IPA% :  if it contains anywhere in the name
-        List<Beer> beers = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%");
+        Page<Beer> beers = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null);
 
-        assertThat(beers.size()).isEqualTo(336);
+        assertThat(beers.getContent().size()).isEqualTo(336);
     }
 
     @Test

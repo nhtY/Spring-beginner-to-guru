@@ -5,13 +5,13 @@ import com.springframework.spring6restmvc.model.BeerStyle;
 import com.springframework.spring6restmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -75,12 +75,12 @@ public class BeerController {
     }
 
     @GetMapping(BEER_PATH)
-    public List<BeerDTO> listBeers(@RequestParam(value = "beerName", required = false) String beerName,
+    public Page<BeerDTO> listBeers(@RequestParam(value = "beerName", required = false) String beerName,
                                    @RequestParam(value = "beerStyle", required = false) BeerStyle beerStyle,
                                    @RequestParam(value = "showInventory", required = false) Boolean showInventory,
                                    @RequestParam(required = false) Integer pageNumber,
-                                   @RequestParam(required = false) Integer PageSize) {
-        return beerService.listBeers(beerName, beerStyle, showInventory, 1, 25);
+                                   @RequestParam(required = false) Integer pageSize) {
+        return beerService.listBeers(beerName, beerStyle, showInventory, pageNumber, pageSize);
     }
 
     // 'For BeerController class', if any method throws a NotFoundException that we created
