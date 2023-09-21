@@ -77,8 +77,10 @@ public class BeerController {
     @GetMapping(BEER_PATH)
     public List<BeerDTO> listBeers(@RequestParam(value = "beerName", required = false) String beerName,
                                    @RequestParam(value = "beerStyle", required = false) BeerStyle beerStyle,
-                                   @RequestParam(value = "showInventory", required = false) Boolean showInventory ) {
-        return beerService.listBeers(beerName, beerStyle, showInventory);
+                                   @RequestParam(value = "showInventory", required = false) Boolean showInventory,
+                                   @RequestParam(required = false) Integer pageNumber,
+                                   @RequestParam(required = false) Integer PageSize) {
+        return beerService.listBeers(beerName, beerStyle, showInventory, 1, 25);
     }
 
     // 'For BeerController class', if any method throws a NotFoundException that we created

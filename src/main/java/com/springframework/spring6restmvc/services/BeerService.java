@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BeerService {
-    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean isShowInventory);
+    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean isShowInventory, Integer pageNumber, Integer pageSize);
 
     BeerDTO saveNewBeer(BeerDTO beer);
 

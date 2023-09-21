@@ -62,6 +62,20 @@ class BeerControllerIT {
     }
 
     @Test
+    void testListBeerByNameAndStyleQueryParamShowInventoryTruePage2() throws Exception {
+
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("beerName", "IPA")
+                        .queryParam("showInventory", "true")
+                        .queryParam("pageNumber", "2")
+                        .queryParam("pageSize", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(50)))
+                .andExpect(jsonPath("$.[0].quantityOnHand").value(IsNull.notNullValue()));
+    }
+
+    @Test
     void testListBeerByNameAndStyleQueryParamShowInventoryFalse() throws Exception {
 
         mockMvc.perform(get(BeerController.BEER_PATH)
@@ -275,7 +289,7 @@ class BeerControllerIT {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers(null, null, null);
+        List<BeerDTO> dtos = beerController.listBeers(null, null, null, 1, 25);
 
         assertThat(dtos.size()).isEqualTo(2413); // we know that CommandLineRunner will create and save 3 beers.
     }
@@ -289,7 +303,7 @@ class BeerControllerIT {
         // test if controller returns empty list, (not null, just empty list)
 
         beerRepository.deleteAll(); // this will affect other test. So after the test, a rollback can reset the state
-        List<BeerDTO> dtos = beerController.listBeers(null, null, null);
+        List<BeerDTO> dtos = beerController.listBeers(null, null, null, 1, 25);
 
         assertThat(dtos).isNotNull();
         assertThat(dtos.size()).isEqualTo(0);
