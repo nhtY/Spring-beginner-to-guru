@@ -7,6 +7,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 // instead of @Data use @Getter and @Setter
@@ -32,4 +33,7 @@ public class Customer {
     private String email;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
+
+    @OneToMany(mappedBy = "customer") // customer here is a property in the target entity. (BeerOrder must have a property called customer)
+    private Set<BeerOrder> beerOrders;
 }
