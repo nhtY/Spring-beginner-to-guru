@@ -42,11 +42,7 @@ class BeerOrderRepositoryTest {
               .customer(testCustomer)
               .build();
 
-      // BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
-
-        // saveAndFlush method saves it immediately. In this way, a bidirectional relation can be established.
-        // Otherwise, order has customer but customer cannot see this order in its orders list.
-        BeerOrder savedBeerOrder = beerOrderRepository.saveAndFlush(beerOrder);
+        BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
 
         log.debug("saved order: {}", savedBeerOrder.getCustomerRef());
 
