@@ -52,6 +52,15 @@ public class Beer {
 
     @OneToMany(mappedBy = "beer")
     private Set<BeerOrderLine> beerOrderLines;
+    @ManyToMany
+    // A table between Beer and Category to establish a many-to-many relation (here the name must be the same given in Category class --> otherwise SchemaManagementException: missing table)
+    @JoinTable(
+            name = "beer_category",
+            joinColumns = @JoinColumn(name = "beer_id"), // FK, coming from Beer (beer_id is the id of Beer--> this class: owner)
+            inverseJoinColumns = @JoinColumn(name = "category_id") // FK, coming from Category (category_id is id of Category)
+    )
+    private Set<Category> categories;
+
 
     @CreationTimestamp
     private LocalDateTime createdDate;
