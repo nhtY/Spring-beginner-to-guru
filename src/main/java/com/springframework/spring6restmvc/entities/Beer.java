@@ -14,6 +14,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -52,6 +53,8 @@ public class Beer {
 
     @OneToMany(mappedBy = "beer")
     private Set<BeerOrderLine> beerOrderLines;
+
+    @Builder.Default // use my code as default when using builder method.
     @ManyToMany
     // A table between Beer and Category to establish a many-to-many relation (here the name must be the same given in Category class --> otherwise SchemaManagementException: missing table)
     @JoinTable(
@@ -59,8 +62,17 @@ public class Beer {
             joinColumns = @JoinColumn(name = "beer_id"), // FK, coming from Beer (beer_id is the id of Beer--> this class: owner)
             inverseJoinColumns = @JoinColumn(name = "category_id") // FK, coming from Category (category_id is id of Category)
     )
-    private Set<Category> categories;
+    private Set<Category> categories = new HashSet<>();
 
+    public void addCategory(Category category) {
+        this.categories.add(category);
+        category.getBeers().add(this);
+    }
+
+    public void removeCategory(Category category) {
+        this.categories.remove(category);
+        category.getBeers().remove(this);
+    }
 
     @CreationTimestamp
     private LocalDateTime createdDate;
